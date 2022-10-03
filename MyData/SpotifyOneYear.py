@@ -33,12 +33,12 @@ artistNameList = []
 trackNameList = []
 msPlayedList = []
 uniqueTrackNameList = []
+uniqueArtistNameList = []
 listenCountList = []
 songsListenedPerDayList = []
 msPlayedPerDayList = []
 timeListenedPerDayList = []
-
-
+artistListenCountList = []
 
 #3000 endTime repeats
 
@@ -63,7 +63,9 @@ def main():
         msPlayedList.append(int(msPlayed["msPlayed"]))
 
     findUniqueTracks()
+    findUniqueArtists()
     generateDateList()
+
     songsListenedPerDay()
     msPlayedPerDay() 
     listenTimePerDay()
@@ -81,6 +83,7 @@ def main():
     listenCountOrdered()
     print()
 
+    """
     mostListensPerDay(10)
     print()
     mostMinPlayedPerDay(10)
@@ -89,6 +92,13 @@ def main():
     print()
     for i in range(10):
         print(timeListenedPerDayList[i])
+    """
+
+    artistListenCount()
+
+    for x in range(20):
+        print(artistListenCountList[x])
+    
 
     """PLOTTING"""
     minPlayedLineGraph()
@@ -133,11 +143,22 @@ def listenTimePerDay():
         timeListenedPerDayList.append([listenTimeInDay(songName), songName])
     timeListenedPerDayList.sort(reverse=True)
 
-def generateDateList(): 
-    global uniqueDateList
+def findUniqueArtists():   
+    for artist in artistNameList:
+        if artist not in uniqueArtistNameList:
+            uniqueArtistNameList.append(artist)
+
+def artistListenCount():
+    for artist in uniqueArtistNameList:
+        artistListenCountList.append([artistNameList.count(artist), artist])
+    artistListenCountList.sort(reverse=True)
+
+# populates uniqueDateList with every date starting from the first date in the data
+def generateDateList():
+    global uniqueDateList 
     temp = re.split(' |-', endTimeList[0])
     base = dt.datetime(int(temp[0]), int(temp[1]), int(temp[2]))
-    uniqueDateList = [ dt.date.isoformat(base + dt.timedelta(days=x)).split(" ")[0] for x in range(365)] 
+    uniqueDateList = [dt.date.isoformat(base + dt.timedelta(days=x)).split(" ")[0] for x in range(365)] 
     
 def songsListenedInDay(uDate):
     count = 0
@@ -146,13 +167,13 @@ def songsListenedInDay(uDate):
             count += 1
     return count
 
-
+#creates a 2d array of the number of songs listened to on each day
 def songsListenedPerDay():
     for uDate in uniqueDateList:
         songsListenedPerDayList.append([songsListenedInDay(uDate), uDate])
     songsListenedPerDayList.sort(reverse=True)
     
-
+# used to print out the top n days based off of number of songs played
 def mostListensPerDay(dataSize):
     index = 1
     for arr in songsListenedPerDayList:
@@ -174,7 +195,7 @@ def msPlayedPerDay():
     for uDate in uniqueDateList:
         msPlayedPerDayList.append([msPlayedInDay(uDate), uDate])
     
-
+# used to print out the top n days based off of minutes played
 def mostMinPlayedPerDay(dataSize):
     index = 1
     msPlayedPerDayTemp = msPlayedPerDayList.copy()
@@ -185,7 +206,7 @@ def mostMinPlayedPerDay(dataSize):
         print(str(index) + ". " + arr[1] + " - " + str(round(arr[0] / 60000, 2)) + " minutes")
         index += 1
 
-
+# plots how many minutes were listened to on every day of the year
 def minPlayedLineGraph():   
     temp = [x[0] / 60000 for x in msPlayedPerDayList]
     plt.plot([x for x in range (1,len(msPlayedPerDayList) + 1)], temp)
