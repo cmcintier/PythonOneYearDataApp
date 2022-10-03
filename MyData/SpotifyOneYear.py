@@ -5,13 +5,11 @@ import numpy as np
 import datetime as dt
 import re
 
-"""~
+"""
     UPCOMING PATCH
-    -> get git integrated (MAX Priority)
     -> add ability to calculate top artists (High Priority)
     -> add UI for top x number of songs (Med Priority) 
     -> add UI for author based searches (Med Priorty)
-
 """
 
 """
@@ -38,6 +36,10 @@ uniqueTrackNameList = []
 listenCountList = []
 songsListenedPerDayList = []
 msPlayedPerDayList = []
+timeListenedPerDayList = []
+
+
+
 #3000 endTime repeats
 
 """
@@ -64,18 +66,17 @@ def main():
     generateDateList()
     songsListenedPerDay()
     msPlayedPerDay() 
+    listenTimePerDay()
 
     """END DATASCRAPE"""
 
     print("You have listened to " + str(len(trackNameList)) + " total songs!")
     print("You have listened to " + str(len(uniqueTrackNameList)) + " unique songs!")
     print("You average " + str(math.floor(len(trackNameList) / len(uniqueTrackNameList))) + " listens per each unique songs!")
-    print("You have listened to " + str(CalculateMsPlayedTotal() / 1000) + " seconds of musical sounds and shit")
-    print("You have listened to " + str(CalculateMsPlayedTotal() / 60000) + " minutes of musical sounds and shit")
-    print("You have listened to " + str(CalculateMsPlayedTotal() / (60000 * 60)) + " hour of musical sounds and shit")
-    print("You have listened to " + str(CalculateMsPlayedTotal() / (60000 * 60 * 24)) + " days of musical sounds and shit\n")
-
-    print("Your balls are not implicit")
+    print("You have listened to " + str(calculateMsPlayedTotal() / 1000) + " seconds of musical sounds")
+    print("You have listened to " + str(calculateMsPlayedTotal() / 60000) + " minutes of musical sounds")
+    print("You have listened to " + str(calculateMsPlayedTotal() / (60000 * 60)) + " hour of musical sounds")
+    print("You have listened to " + str(calculateMsPlayedTotal() / (60000 * 60 * 24)) + " days of musical sounds\n")
     
     listenCountOrdered()
     print()
@@ -83,8 +84,11 @@ def main():
     mostListensPerDay(10)
     print()
     mostMinPlayedPerDay(10)
-    #for i in range(30):
-    #    print(listenCountList[i])
+    for i in range(10):
+        print(listenCountList[i])
+    print()
+    for i in range(10):
+        print(timeListenedPerDayList[i])
 
     """PLOTTING"""
     minPlayedLineGraph()
@@ -111,12 +115,23 @@ def listenCountOrdered():
     listenCountList.sort(reverse=True)
 
 #Calculates total msPlayed for past year
-def CalculateMsPlayedTotal():
+def calculateMsPlayedTotal():
     msPlayedTotal = 0
     for msPlayed in msPlayedList:
         msPlayedTotal += msPlayed
     return msPlayedTotal
 
+def listenTimeInDay(songName):
+    listenTime = 0
+    for index in range(len(trackNameList)):
+        if songName == trackNameList[index]:
+            listenTime += msPlayedList[index]
+    return listenTime / 60000
+
+def listenTimePerDay():
+    for songName in uniqueTrackNameList:
+        timeListenedPerDayList.append([listenTimeInDay(songName), songName])
+    timeListenedPerDayList.sort(reverse=True)
 
 def generateDateList(): 
     global uniqueDateList
